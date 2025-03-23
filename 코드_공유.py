@@ -27,10 +27,38 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 
 ####### A 작업자 작업 수행 #######
 
-''' 코드 작성 바랍니다 '''
+import numpy as np
+from sklearn.tree import DecisionTreeClassifier
 
 
+param_grid = {
+    'criterion': ['gini', 'entropy'],
+    'max_depth': [2, 3],
+    'min_samples_split': [2, 10],
+    'min_samples_leaf': [1, 2, 4]
+}
 
-####### B 작업자 작업 수행 #######
+dt = DecisionTreeClassifier(random_state=42)
 
-''' 코드 작성 바랍니다 '''
+grid_search = GridSearchCV(estimator=dt,
+                           param_grid=param_grid,
+                           cv=5,
+                           scoring='accuracy')
+grid_search.fit(X_train, y_train)
+
+print("Best Parameters:", grid_search.best_params_)
+print("Best CV Accuracy:", grid_search.best_score_)
+
+
+best_dt = grid_search.best_estimator_
+
+# Feature Importance 시각화
+feat_importances = pd.Series(best_dt.feature_importances_, index=X.columns)
+feat_importances = feat_importances.sort_values(ascending=False)
+
+plt.figure(figsize=(10, 6))
+feat_importances.plot(kind='bar')
+plt.title("Feature Importance")
+plt.xlabel("Feature")
+plt.ylabel("importances")
+plt.show()
